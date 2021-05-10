@@ -1,15 +1,15 @@
 # IB-Tool
 
-Toolset for the delineation of settlements on the basis building footprints, roadnetwork and land use data
+Toolset for the delineation of settlements on the basis building footprints, road network and land use data
 
 
-### Prerequisites
+## 1. Prerequisites
 
 - Install the necessary packages via pip or the package maganger of your IDE.
-- You need a running ArcGIS version (ArcMap or ArcGIS Prso) on the system on which the code is to be executed. Furthermore, a [Spatial Analyst licence] (https://desktop.arcgis.com/en/arcmap/latest/extensions/spatial-analyst/what-is-the-spatial-analyst-extension.htm) is required.
+- You need a running ArcGIS version (ArcMap or ArcGIS Prso) on the system on which the code is to be executed. Furthermore, a [Spatial Analyst licence](https://desktop.arcgis.com/en/arcmap/latest/extensions/spatial-analyst/what-is-the-spatial-analyst-extension.htm) is required.
 
 
-#### Python and Python packages 
+### Python and Python packages 
 
 In addition, the following Python packages have to be installed:
 
@@ -22,14 +22,14 @@ In addition, the following Python packages have to be installed:
 - msvcrt
 - re
 
-The script also uses the following standard module:
+The script also uses the following standard modules:
 
 - os
 - time
 - datetime
 - operator 
 
-### Installing
+## 2. Installing
 
 The tool consists of three independent scripts:
 
@@ -39,48 +39,48 @@ The tool consists of three independent scripts:
 
 It is recommended to create a separate directory for each of the three parts.
 
-## Application
+## 3. Application
 
 
 
-### 1. Partitioning
+### a) Partitioning
 
 To be able to create a delineation, a partitioning must be created. To do this, the file partitioning.pyt from Python-Toolbox must be opened in ArcGIS. The building data can then be selected via the dialogue.
 These files must be located in a geodatabase. The working directory must also be a geodatabase. It is advised not to change the default parameters.
 
 If other data is used for partitioning, care must be taken that it contains a "NAME" field (text). The field "NAME" must contain an individual value for each feature, e.g. PART_1, PART_2, ...
 
-### 2. Creating settlement boundary
+### b) Creating settlement boundary
 
 The script is designed to use ATKIS data as input data. If other data are used, problems may occur due to different field names/data formatting within the data.
 
 Copy building floor plans, road network data, auxiliary data, partitioning data and the three script files(IB-Tool2.py, IB-Tool2_Config.txt, IB-Tool2_Filter.txt) into a working directory.
 
-#### Data preparation
+### c) Data preparation
 
-##### Building Footprint
+#### Building Footprint
 
 The building ground plans must be available as a polygon shape file. The data must not contain a "NAME" field.
 The file must be renamed to A_HU.shp.
 
-##### Road network data
+#### Road network data
 
 The data must be available as a polyline shape file.
 The file must be renamed to A_RN.shp.
 
-##### Auxiliary data
+#### Auxiliary data
 
 The data must be available as a polyline shape file.
 The file must be renamed to A_AUX.shp.
 
-##### Partitioning data
+#### Partitioning data
 
 The data must be available as a polygon shape file. The data must contain a "NAME" field.
 The file must be renamed to A_PART.shp.
 
-#### Configuration/Parameterisation
+### d) Configuration/Parameterisation
 
-##### Filters
+#### Filters
 
 Building filters are set in the IB-Tool2_Filter.txt file.
 
@@ -129,7 +129,7 @@ Entries after the comma are used for commenting.
 #End
 ```
 
-##### Parameter
+#### Parameter
 
 Parameters are set in IB-Tool2_Config.txt file.
 
@@ -167,7 +167,7 @@ The values 8. 9, 10 are used for partioning purposes of the data set
 14. Set switch for PartLog to True or False (default value = True)
 
 
-### 3. comparison of expert delineations and calculated urban growth boundaries
+### e) Comparison of expert delineations and calculated urban growth boundaries
 
 Set imput data:
 
@@ -182,11 +182,11 @@ sr = arcpy.SpatialReference(25833)
 ````
 
 
-## Authors
+## 4. Authors
 
-Oliver Harig
+Oliver Harig, Leibniz Institute of Ecological Urban and Regional Development, Dresden
 
-## License
+## 5. License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+See [LICENSE.md](LICENSE.md) file for details.
 
