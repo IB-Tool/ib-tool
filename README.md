@@ -181,12 +181,22 @@ Nutzungen = Workspace + os.path.sep + "A_Nutzungen_P.shp" #  land use geometry (
 sr = arcpy.SpatialReference(25833)
 ````
 
+## 4. Test data
 
-## 4. Authors
+The test data set contains all required geometries (buildings, path network, auxiliary geometries). The data can be obtained free of charge under the [dl-de/by-2-0 licence](https://www.govdata.de/dl-de/by-2-0) from [Geobroker](https://geobroker.geobasis-bb.de/). 
 
-Oliver Harig, Leibniz Institute of Ecological Urban and Regional Development, Dresden
+The provided reference data do not represent real UGB geometries. They were created to test the functionality of the programme.
 
-## 5. License
+![Test_data/Screenshot](screenshot.png)
+
+
+
+## 5. Authors
+
+Oliver Harig: Conception, code implementation
+Robert Hecht, Gotthardt Meinel, Dirk Burghardt: Conception
+
+## 6. License
 
 See [LICENSE.md](LICENSE.md) file for details.
 
