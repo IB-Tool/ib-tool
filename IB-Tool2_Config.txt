@@ -8,7 +8,7 @@
 08 Partition Start (default value = -1):-1
 09 Partition End (default value = -1):-1
 10 Partition List (default value = #):#
-11 Log Level (default value = Warning):Debug
-12 Spatial Reference:25832
+11 Log Level (default value = Warning):Warning
+12 Spatial Reference:25833
 13 Path Common Workspace:D:\path\to\working\directory
 14 Delete PartLog at start:True

@@ -186,8 +186,8 @@ sr = arcpy.SpatialReference(25833)
 
 ## 4. Authors
 
-Oliver Harig: Conception, code implementation
-Robert Hecht, Gotthardt Meinel, Dirk Burghardt: Conception
+- Oliver Harig: Conception, code implementation
+- Robert Hecht, Gotthardt Meinel, Dirk Burghardt: Conception
 
 ## 5. License
 
