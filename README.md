@@ -2,6 +2,9 @@
 
 Toolset for the delineation of settlements on the basis building footprints, road network and land use data
 
+This tool was developed as part of a Phd thesis. For further information, please see the following publication: 
+Harig, O.; Hecht, R.; Burghardt, D.; Meinel, G. Automatic Delineation of Urban Growth Boundaries Based on Topographic Data Using Germany as a Case Study. ISPRS Int. J. Geo-Inf. 2021, 10, 353. https://doi.org/10.3390/ijgi10050353 
+
 
 ## 1. Prerequisites
 
