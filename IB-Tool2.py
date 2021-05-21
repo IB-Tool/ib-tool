@@ -5,8 +5,23 @@
 #
 # Author:      Oliver Harig
 #
-# Created:     22.10.2020
-# Licence:     CC-BY
+# Created:     10.05.2021
+# Licence:     Copyright 2021 Oliver Harig
+#
+#              Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+#              associated documentation files (the "Software"), to deal in the Software without restriction, including
+#              without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#              copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+#              following conditions:
+#
+#              The above copyright notice, a link to this repository (https://github.com/IB-Tool/ib-tool) and the
+#              DOI () and this permission notice must be included in all copies or substantial portions of the Software.
+#
+#              THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#              LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+#              IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+#              WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+#              SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #----------------------------------------------------------------------
 
 
@@ -58,10 +73,10 @@ with open('IB-Tool2_Config.txt', 'r') as txt:
 # set level of logging (LogLevels:'Alert', 'Warning', 'Info', 'Debug')
 LogLevel = valuelist[10]
 
-# set spatial reference
+# get spatial reference
 sr = arcpy.SpatialReference(int(valuelist[11]))
 
-# set workspace for results
+# get workspace for results
 workspace_results = valuelist[12]
 
 # set ESRI environment variables
@@ -267,7 +282,7 @@ def Starter(valuelist):
            r'          __/\\\\\\\\\\\_\/\\\\\\\\\\\\\/______________________\/\\\________\///\\\\\/____\///\\\\\/____/\\\\\\\\\_' + '\n' + \
            r'          _\///////////__\/////////////________________________\///___________\/////________\/////_____\/////////__' + '\n' + \
            r'          ' + '\n' + \
-           r'          Author: Oliver Harig' + '\n' + '          Licence: CC-BY' + '\n\n'
+           r'          Author: Oliver Harig' + '\n' '          Licence: Copyright 2021 Oliver Harig' + '\n\n'
     print (logo)
     time.sleep(1)
 
@@ -886,7 +901,7 @@ class IbTool:
         DelName([HU_input_SP, HU_Rectangle, HU_Rect_Buff, HU_Bloeck_Merge, HU_Bloeck_Merge_Join, "Blocks_FL", \
                  NewSelection])
         if Blocks_red is not None:
-            Log("Debug", "FootprintDensity finish - Blocks_red {} ".format(CountPrint(Blocks_red)))
+            Log("Debug", "Building coverage - Blocks_red {} ".format(CountPrint(Blocks_red)))
 
         return Blocks_red
 
@@ -985,7 +1000,7 @@ class IbTool:
         Blocks_inside = mem("Blocks_inside")
         Blocks_join = mem("Blocks_join")
         SelBdg = mem("SelBdg")
-        Log("Debug", "CalcFootprintDensity Start")
+        Log("Debug", "Building coverage Start")
 
         DelName([Merge_Dummy8])
         arcpy.management.CreateFeatureclass(Workspace, Merge_Dummy8, "POLYGON", None, "DISABLED", "DISABLED", None,
@@ -1071,7 +1086,7 @@ class IbTool:
                 for x in cursor22:
                     sum += x[0]
             del cursor22
-            #DelName([Inner_Blocks_FL, InputBdg_FL, SelBdg, Sel])
+            DelName([Inner_Blocks_FL, InputBdg_FL, SelBdg, Sel])
             globfpdenshresld = sum / count
         else:
             globfpdenshresld = GlobalThreshold
@@ -2154,7 +2169,6 @@ class IbTool:
                     arcpy.management.CalculateField(rn_merge_ply, "Name", "'RoBl_'+ str(!OID!)", "PYTHON_9.3", None)
                 except:
                     pass
-                arcpy.CopyFeatures_management(rn_merge_ply, "rn_merge_ply.shp")
                 arcpy.analysis.Split(ugb_symdiff_FL, rn_merge_ply, "Name", Workspace, None)
                 MergeList = arcpy.ListFeatureClasses('RoBl_*')
                 arcpy.management.Merge(MergeList, RoBl_Merge)
@@ -2196,8 +2210,6 @@ class IbTool:
         CheckFileType(InputBdg, "ShapeFile", "Polygon")
 
         InputPoly_Join = mem("InputPoly_Join")
-        #Blocks_red_red = mem('Blocks_red_red')
-        #Blocks_red_sel = mem('Blocks_red_sel')
         InputPoly_Merge = mem('InputPoly_Merge')
         InputPoly_Diss = mem('InputPoly_Diss')
         PatchRemove = ("PatchRemove.shp")
@@ -2217,7 +2229,6 @@ class IbTool:
         arcpy.management.SelectLayerByAttribute(InputPoly_Join_FL, "NEW_SELECTION",
                                                 "Join_Count < {0} Or Shape_Area < {1}".format(MinBdgCount,
                                                                                               MinPatchSize))
-        arcpy.CopyFeatures_management(InputPoly_Join, "InputPoly_Join.shp")
         arcpy.DeleteFeatures_management(InputPoly_Join_FL)
 
         Parts_Overlap_FL = arcpy.MakeFeatureLayer_management(Parts_Overlap)
@@ -2245,7 +2256,6 @@ def main():
     startzeit = time.strftime("%Y_%m_%d_%H_%M")
     arcpy.env.overwriteOutput = True
     lockswitch = False
-    # Merge_Dummy4 = "Merge_Dummy4.shp"
     AuxLayers_Line = mem("AuxLayers_Line")
     AuxLayers_Poly = mem("AuxLayers_Poly")
 
@@ -2254,19 +2264,19 @@ def main():
     try:
         MinOverlapBlocks, globfpdenshresld, MinArea, MinBdgCount, MinPatchSize, MaxHoleSize, MaxGapSize, partstart, partend, partlist, PathCommonWorkspace, DelPartLog = Starter(
             valuelist)
-
-        Log('Info', os.path.realpath(__file__))
-        Log('Info', Workspace)
-        Log('Info', "\nMinOverlapBlocks = {}\n" \
-                    "GlobalFootprintDensity = {}\n" \
-                    "MinArea = {}\n" \
-                    "MinBdgCount = {}\n" \
-                    "MinPatchSize = {}\n" \
-                    "MaxHoleSize = {}\n" \
-                    "MaxGapSize = {}\n" \
-                    "PartStart = {}\n" \
-                    "PartEnd = {}\n" \
-                    "Partlist = {}".format(MinOverlapBlocks, globfpdenshresld, MinArea, MinBdgCount, MinPatchSize,
+        Log('Info', "PARAMETERS")
+        Log('Info', "Script file = " + str(os.path.realpath(__file__)))
+        Log('Info', "Workspace = " + str(Workspace))
+        Log('Info', "MinOverlapBlocks = {}\n" \
+                    "                   GlobalFootprintDensity = {}\n" \
+                    "                   MinArea = {}\n" \
+                    "                   MinBdgCount = {}\n" \
+                    "                   MinPatchSize = {}\n" \
+                    "                   MaxHoleSize = {}\n" \
+                    "                   MaxGapSize = {}\n" \
+                    "                   PartStart = {}\n" \
+                    "                   PartEnd = {}\n" \
+                    "                   Partlist = {}\n".format(MinOverlapBlocks, globfpdenshresld, MinArea, MinBdgCount, MinPatchSize,
                                            MaxHoleSize, MaxGapSize, partstart, partend, partlist))
 
         # MAIN PROGRAM
@@ -2366,7 +2376,7 @@ def main():
         else:
             pass
 
-        Log('Debug', "Global footprint density threshold =" + str(globfpdenshresld))
+        Log('Debug', "Global building coverage threshold =" + str(globfpdenshresld))
 
 
         lenpartlist = len(partlist)
@@ -2446,7 +2456,7 @@ def main():
                 MinOverlapMST = IbTools.CalcFootprintDensity(SelHU, SelStrassen, 100, globfpdenshresld, 'local',
                                                              MinBdgCount)
 
-                Log("Debug", "LocalFootprintDensity=" + str(MinOverlapMST))
+                Log("Debug", "Local building coverage =" + str(MinOverlapMST))
 
 
 
@@ -2640,7 +2650,9 @@ def main():
         else:
             Log("Info", "No Refinement")
 
-        DelName([AuxLayers_Line, AuxLayers_Poly])
+        DelName([AuxLayers_Line, AuxLayers_Poly, GapFix_out])
+        arcpy.Delete_management("Tmp.gdb")
+        DelName(['IB_Tool_Results', 'Tmp'])
 
     except Exception as e:
 

@@ -1,14 +1,14 @@
-01 Minimum Overlap of Inner Area Blocks (%): 18
-02 GlobalFootprintDensity(%): 0
-03 Minimum Building Footprint Area (sqm): 56.8
-04 Minimum Number of Buildings to create a Inner Area: 20
-05 Minimum Size of Inner Area Patch (sqm): 10000
-06 Maximum Size of Hole (sqm): 10000
-07 Maximum Size of Gaps (sqm): 4900
-08 Partition Start (default value = -1): -1
-09 Partition End (default value = -1): -1
+01 Minimum Overlap of Inner Area Blocks (%):18
+02 GlobalFootprintDensity(%):0
+03 Minimum Building Footprint Area (sqm):56.8
+04 Minimum Number of Buildings to create a Inner Area:20
+05 Minimum Size of Inner Area Patch (sqm):10000
+06 Maximum Size of Hole (sqm):10000
+07 Maximum Size of Gaps (sqm):4900
+08 Partition Start (default value = -1):-1
+09 Partition End (default value = -1):-1
 10 Partition List (default value = #):#
 11 Log Level (default value = Warning):Debug
-12 Spatial Reference: 25832
-13 Path Common Workspace: D:\path\to\working\directory
+12 Spatial Reference:25832
+13 Path Common Workspace:D:\path\to\working\directory
 14 Delete PartLog at start:True

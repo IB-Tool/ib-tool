@@ -184,10 +184,10 @@ Nutzungen = Workspace + os.path.sep + "A_Nutzungen_P.shp" #  land use geometry (
 sr = arcpy.SpatialReference(25833)
 ````
 
-
 ## 4. Authors
 
-Oliver Harig, Leibniz Institute of Ecological Urban and Regional Development, Dresden
+Oliver Harig: Conception, code implementation
+Robert Hecht, Gotthardt Meinel, Dirk Burghardt: Conception
 
 ## 5. License
 
