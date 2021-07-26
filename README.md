@@ -9,7 +9,7 @@ Harig, O.; Hecht, R.; Burghardt, D.; Meinel, G. Automatic Delineation of Urban G
 ## 1. Prerequisites
 
 - Install the necessary packages via pip or the package maganger of your IDE.
-- You need a running ArcGIS version (ArcMap or ArcGIS Prso) on the system on which the code is to be executed. Furthermore, a [Spatial Analyst licence](https://desktop.arcgis.com/en/arcmap/latest/extensions/spatial-analyst/what-is-the-spatial-analyst-extension.htm) is required.
+- You need a running ArcGIS Advanced version (ArcMap or ArcGIS Pro) on the system on which the code is to be executed. Furthermore, a [Spatial Analyst licence](https://desktop.arcgis.com/en/arcmap/latest/extensions/spatial-analyst/what-is-the-spatial-analyst-extension.htm) is required.
 
 
 ### Python and Python packages 
