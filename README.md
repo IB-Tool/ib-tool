@@ -63,7 +63,7 @@ Copy building floor plans, road network data, auxiliary data, partitioning data 
 
 #### Building Footprint
 
-The building ground plans must be available as a polygon shape file. The data must not contain a "NAME" field.
+The building ground plans must be available as a polygon shape file. By default, the tool is designed to use building data according to the [AFIS-ALKIS-ATKIS application schema](https://www.adv-online.de/GeoInfoDok/GeoInfoDok-NEU-Referenz-7.1/AAA-Anwendungsschema-7.1.1/). The filter function accesses the corresponding attributes of the building geometry. The data must not contain a "NAME" field.
 The file must be renamed to A_HU.shp.
 
 #### Road network data
