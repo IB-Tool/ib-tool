@@ -26,50 +26,49 @@
 #----------------------------------------------------------------------
 
 # ------ IMPORTS ------
+import arcpy  # Import ArcPy module for geospatial data manipulation
+import os  # Import os module for operating system functions
+import time  # Import time module for handling time-related operations
 
-import arcpy
-import os
-import time
 
 # ------ GLOBAL SETTINGS ------
 
-# working folder set to current folder of py-file
+# Set the working folder to the current folder of the Python file
 Workspace = os.getcwd()
-arcpy.env.overwriteOutput = True
+arcpy.env.overwriteOutput = True  # Allow overwriting of existing data
 
-# deactivate ESRI logging for disk space saving
+# Deactivate ESRI logging for disk space saving
 arcpy.SetLogHistory(False)
 
-# create folder for temporary files
+# Create a folder for temporary files
 if arcpy.Exists("Tmp.gdb"):
     arcpy.Delete_management("Tmp.gdb")
 arcpy.CreateFileGDB_management(Workspace, "Tmp.gdb")
-Geodatabase = Workspace + os.path.sep + "Tmp.gdb"
-timedic = {}
+Geodatabase = Workspace + os.path.sep + "Tmp.gdb"  # Define the path to the temporary geodatabase
+timedic = {}  # Create an empty dictionary to store time-related information
 
 
 # ------ INPUT DATA ------
 
-InputHU = Workspace + os.path.sep + "A_HU_P.shp" #  Building footprints (polygon, shape)
-IBS = Workspace + os.path.sep + "A_IBS_P.shp" #  Expert delieation (polygon, shape)
-UGB = Workspace + os.path.sep + "A_UGB_P5.shp"  #  Caculated boundary (polygon, shape)
-Nutzungen = Workspace + os.path.sep + "A_Nutzungen_P.shp" #  land use geometry (polygon, shape)
+# Define paths to input shapefiles
+InputHU = Workspace + os.path.sep + "A_HU_P.shp"  # Building footprints (polygon, shape)
+IBS = Workspace + os.path.sep + "A_IBS_P.shp"  # Expert delineation (polygon, shape)
+UGB = Workspace + os.path.sep + "A_UGB_P5.shp"  # Calculated boundary (polygon, shape)
+Nutzungen = Workspace + os.path.sep + "A_Nutzungen_P.shp"  # Land use geometry (polygon, shape)
+
+# Create a spatial reference object using the EPSG code 25833
 sr = arcpy.SpatialReference(25833)
 
 
-# set thresholds
+# ------ SET ESRI ENVIRONMENT VARIABLES ------
 
-GOT = 15  # Upper threshold
-LBC = 3   # Lower threshold
-
-# set ESRI environment variables
-arcpy.env.workspace = Workspace
-arcpy.env.outputCoordinateSystem = sr
-arcpy.env.referenceScale = "10000"
-arcpy.env.outputCoordinateSystem = sr
-arcpy.env.overwriteOutput = True
-arcpy.CheckOutExtension("Spatial")
-os.chdir(Workspace)
+# Set ArcPy environment variables
+arcpy.env.workspace = Workspace  # Set the workspace to the current folder
+arcpy.env.outputCoordinateSystem = sr  # Set the output coordinate system
+arcpy.env.referenceScale = "10000"  # Set the reference scale for output
+arcpy.env.overwriteOutput = True  # Allow overwriting of existing data
+arcpy.CheckOutExtension("Spatial")  # Check out the Spatial Analyst extension
+os.chdir(Workspace)  # Change the working directory to the current folder
 
 
 # ------ GLOBAL FUNCTIONS ------
