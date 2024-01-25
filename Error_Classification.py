@@ -1,49 +1,74 @@
+#----------------------------------------------------------------------
+# Name:        IB-Tool2
+# Purpose:     Toolset for the delineation of settlements on the basis
+#              building footprints
+#
+# Author:      Oliver Harig
+#
+# Created:     10.05.2021
+# Cite:        Oliver Harig (2021). Toolset for the delineation of settlements on the basis building footprints, road network and land use data (v1.0) https://doi.org/10.26084/IOERFDZ-SOFT-001    
+# Licence:     MIT License
+               Copyright 2021 Oliver Harig
+#
+#              Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+#              associated documentation files (the "Software"), to deal in the Software without restriction, including
+#              without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#              copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+#              following conditions:
+#
+#              The above copyright notice, and this permission notice must be included in all copies or substantial portions of the Software.
+#
+#              THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#              LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+#              IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+#              WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+#              SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#----------------------------------------------------------------------
 
 # ------ IMPORTS ------
+import arcpy  # Import ArcPy module for geospatial data manipulation
+import os  # Import os module for operating system functions
+import time  # Import time module for handling time-related operations
 
-import arcpy
-import os
-import time
 
 # ------ GLOBAL SETTINGS ------
 
-# working folder set to current folder of py-file
+# Set the working folder to the current folder of the Python file
 Workspace = os.getcwd()
-arcpy.env.overwriteOutput = True
+arcpy.env.overwriteOutput = True  # Allow overwriting of existing data
 
-# deactivate ESRI logging for disk space saving
+# Deactivate ESRI logging for disk space saving
 arcpy.SetLogHistory(False)
 
-# create folder for temporary files
+# Create a folder for temporary files
 if arcpy.Exists("Tmp.gdb"):
     arcpy.Delete_management("Tmp.gdb")
 arcpy.CreateFileGDB_management(Workspace, "Tmp.gdb")
-Geodatabase = Workspace + os.path.sep + "Tmp.gdb"
-timedic = {}
+Geodatabase = Workspace + os.path.sep + "Tmp.gdb"  # Define the path to the temporary geodatabase
+timedic = {}  # Create an empty dictionary to store time-related information
 
 
 # ------ INPUT DATA ------
 
-InputHU = Workspace + os.path.sep + "A_HU_P.shp" #  Building footprints (polygon, shape)
-IBS = Workspace + os.path.sep + "A_IBS_P.shp" #  Expert delieation (polygon, shape)
-UGB = Workspace + os.path.sep + "A_UGB_P5.shp"  #  Caculated boundary (polygon, shape)
-Nutzungen = Workspace + os.path.sep + "A_Nutzungen_P.shp" #  land use geometry (polygon, shape)
+# Define paths to input shapefiles
+InputHU = Workspace + os.path.sep + "A_HU_P.shp"  # Building footprints (polygon, shape)
+IBS = Workspace + os.path.sep + "A_IBS_P.shp"  # Expert delineation (polygon, shape)
+UGB = Workspace + os.path.sep + "A_UGB_P5.shp"  # Calculated boundary (polygon, shape)
+Nutzungen = Workspace + os.path.sep + "A_Nutzungen_P.shp"  # Land use geometry (polygon, shape)
+
+# Create a spatial reference object using the EPSG code 25833
 sr = arcpy.SpatialReference(25833)
 
 
-# set thresholds
+# ------ SET ESRI ENVIRONMENT VARIABLES ------
 
-GOT = 15  # Upper threshold
-LBC = 3   # Lower threshold
-
-# set ESRI environment variables
-arcpy.env.workspace = Workspace
-arcpy.env.outputCoordinateSystem = sr
-arcpy.env.referenceScale = "10000"
-arcpy.env.outputCoordinateSystem = sr
-arcpy.env.overwriteOutput = True
-arcpy.CheckOutExtension("Spatial")
-os.chdir(Workspace)
+# Set ArcPy environment variables
+arcpy.env.workspace = Workspace  # Set the workspace to the current folder
+arcpy.env.outputCoordinateSystem = sr  # Set the output coordinate system
+arcpy.env.referenceScale = "10000"  # Set the reference scale for output
+arcpy.env.overwriteOutput = True  # Allow overwriting of existing data
+arcpy.CheckOutExtension("Spatial")  # Check out the Spatial Analyst extension
+os.chdir(Workspace)  # Change the working directory to the current folder
 
 
 # ------ GLOBAL FUNCTIONS ------
