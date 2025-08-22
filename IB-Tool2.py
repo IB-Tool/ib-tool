@@ -8,7 +8,7 @@
 # Created:     10.05.2021
 # Cite:        Oliver Harig (2021). Toolset for the delineation of settlements on the basis building footprints, road network and land use data (v1.0) https://doi.org/10.26084/IOERFDZ-SOFT-001    
 # Licence:     MIT License
-               Copyright 2021 Oliver Harig
+#               Copyright 2021 Oliver Harig
 #
 #              Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 #              associated documentation files (the "Software"), to deal in the Software without restriction, including
@@ -191,7 +191,7 @@ def Log(Level='Warning', Text=''):
             pt = (Level + " " + jetztzeit + " - " + printtext)
         logfile.write("\n" + pt)
         logfile.close()
-        print (pt)
+        print(pt)
         return pt
 
     if LogLevel == 'Alert' and (Level == 'Alert' or Level == 'Info'):
@@ -284,7 +284,7 @@ def Starter(valuelist):
            r'          _\///////////__\/////////////________________________\///___________\/////________\/////_____\/////////__' + '\n' + \
            r'          ' + '\n' + \
            r'          Author: Oliver Harig' + '\n' '          Licence: Copyright 2021 Oliver Harig' + '\n\n'
-    print (logo)
+    print(logo)
     time.sleep(1)
 
     if os.path.isfile("A_HU.shp") != True:
@@ -1080,7 +1080,7 @@ class IbTool:
             InputBdg_FL = arcpy.MakeFeatureLayer_management(InputBdg)
             Sel = arcpy.management.SelectLayerByLocation(InputBdg_FL, "INTERSECT", Inner_Blocks_FL)
             arcpy.CopyFeatures_management(Sel, SelBdg)
-            print (CountPrint(SelBdg))
+            print(CountPrint(SelBdg))
             Blocks_red = IbTool.FootprintDensity(self, SelBdg, Inner_Blocks, 0)
             sum = 0
             with arcpy.da.SearchCursor(Blocks_red, ["OVERLAP"]) as cursor22:
@@ -2304,8 +2304,8 @@ def main():
         os.chdir(Workspace)
 
         # check python version
-        if sys.version_info[0] > 2:
-            raise Exception(Log('Alert', "Python has to be Python 2"))
+        if sys.version_info[0] != 3:
+            raise Exception(Log('Alert', "Python has to be Python 3"))
 
         # create auxiliary data
         j = 1
@@ -2392,7 +2392,7 @@ def main():
                     isin = True
                 a = a + 1
             if isin is False:
-                Partlog.write("\n" + i)
+                Partlog.write("\n" + i.decode('utf-8') if isinstance(i, bytes) else "\n" + i)
                 Partlog.close()
             if isin is True:
                 Partlog.close()
@@ -2576,9 +2576,9 @@ def main():
                 # If a ArcGIS tool error occurs, current partition will be calculated again at the end.
 
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                print ("ToolError:")
+                print("ToolError:")
                 traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-                print ("ToolError (long)")
+                print("ToolError (long)")
                 traceback.print_exception(exc_type, exc_value, exc_traceback,
                                          limit=2, file=sys.stdout)
 
@@ -2609,7 +2609,7 @@ def main():
 
                     Log("Alert", str(e))
                     exc_type, exc_value, exc_traceback = sys.exc_info()
-                    print ("Error in ToolError exception")
+                    print("Error in ToolError exception")
                     traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
 
@@ -2617,18 +2617,18 @@ def main():
 
                 Log("Alert", str(e))
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                print ("TypeError")
+                print("TypeError")
                 traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-                print ("TypeError (long)")
+                print("TypeError (long)")
                 traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
 
             except Exception as e:
                 Log("Alert", str(e))
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                print ("General python error:")
+                print("General python error:")
                 traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-                print ("General python error (long):")
+                print("General python error (long):")
                 traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
 
@@ -2658,7 +2658,7 @@ def main():
     except Exception as e:
 
         time.sleep(3)
-        raw_input("Press key to exit.")
+        input("Press key to exit.")
         sys.exit(-1)
 
 
