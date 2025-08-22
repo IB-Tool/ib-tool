@@ -2573,13 +2573,12 @@ def main():
 
                 Log("Info", 'COMPLETED SUCCESSFULLY')
 
-                '''
                 del IbTools, Inner_Areas, HU_Filter, SelPart, MST, SelHU, Deli_Areas, \
                     Blocks_red, PatchRemove,  Strassen_FL, SelStrassen,  whereclause, \
                     SelPart_FL, Cluster_Features,  SelStrassen_Diss, Blocks, \
                     Blocks_Veg, Partition_FL, Inner_Areas_Fin, InputHU_FL, Inner_Areas_Dissolve, Feat_Merge, \
                     Sel
-                '''
+
             except arcpy.ExecuteError:
                 # If a ArcGIS tool error occurs, current partition will be calculated again at the end.
 
