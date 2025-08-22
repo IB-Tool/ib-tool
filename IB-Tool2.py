@@ -38,6 +38,7 @@ import time
 import datetime
 import traceback
 import sys
+import math
 import networkx as nx
 import numpy as np
 import scipy as sp
@@ -2374,6 +2375,7 @@ def main():
         if globfpdenshresld == 0:
             globfpdenshresld = IbToolsStart.CalcFootprintDensity(InputHU, Strassen, 100, 0, 'global', MinBdgCount,
                                                                  Partition)
+            print("GlobalFootprintDensity = {}".format(globfpdenshresld))
         else:
             pass
 
@@ -2388,7 +2390,7 @@ def main():
             Partlog = open(PartLogPath, 'r+')
             for row in Partlog:
                 part = str(row).replace('\n', '')
-                if part == i:
+                if part == (i.decode('utf-8') if isinstance(i, bytes) else i):
                     isin = True
                 a = a + 1
             if isin is False:
@@ -2418,7 +2420,7 @@ def main():
                 InputHU_FL = arcpy.MakeFeatureLayer_management(InputHU)
 
                 global Part_Name
-                Part_Name = i
+                Part_Name = i.decode('utf-8') if isinstance(i, bytes) else str(i)
 
                 Log('Info', "#######################################################################################")
                 Log('Info', "PARTITION: " + str(Part_Name) + " - " + str(a) + " of " + str(len(partlist)))
