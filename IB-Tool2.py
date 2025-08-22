@@ -1373,8 +1373,8 @@ class IbTool:
                                                            "NEW_SELECTION", "INVERT")
         arcpy.CopyFeatures_management(Selection, SelectionDelaunayLines)
 
-        with arcpy.da.SearchCursor(SelectionDelaunayLines, ["x1", "y1", "x2", "y2", "EDGE"]) as cursor5:
-            for z in cursor5:
+        with arcpy.da.SearchCursor(SelectionDelaunayLines, ["x1", "y1", "x2", "y2", "EDGE"]) as cursor51:
+            for z in cursor51:
                 string1 = str(z[4])
                 string2 = string1.replace("[", "")
                 string = string2.replace("]", "")
@@ -1387,8 +1387,8 @@ class IbTool:
                 try:
                     XA = DictListOfNodes[int(node1)]
                     XB = DictListOfNodes[int(node2)]
-
-                    y = sp.spatial.distance.cdist(XA, XB, metric='euclidean', p=2, V=None, VI=None, w=None)
+                    
+                    y = sp.spatial.distance.cdist(XA, XB)
                     w = y.min()
                     if w < 1:
                         w = 1
@@ -1398,24 +1398,30 @@ class IbTool:
                         cursor9.insertRow([node1, node2, x1, w])
                     del cursor9
 
+
                 except:
                     if InputBdgJoinPoints is not None and node1 is not None and node2 is not None:
-                        Log('Warning', 'Building skipped while creating the MST. Check input buildings and {} at node {} and node {} for topology error (overlaping polygons).'.format(
+                        Log('Warning', 'Building skipped while creating the MST. Check input buildings and {} at node {} and node {}.'.format(
                             InputBdgJoinPoints, node1, node2))
+        del cursor51
 
         Shp_Area(InputBdg)
         Rename_Field(InputBdg, "Shape_Area", "Area", "DOUBLE")
         arcpy.management.MinimumBoundingGeometry(InputBdg, InputBdgMBG, "RECTANGLE_BY_AREA", "NONE", None, "MBG_FIELDS")
+        #arcpy.CopyFeatures_management(InputBdgMBG, "InputBdgMBG.shp") DEL
         arcpy.management.AddJoin(point_input_FL, "ORIG_FID", InputBdgMBG, "ORIG_FID", "KEEP_ALL")
-
+        #arcpy.CopyFeatures_management(point_input_FL, "point_input_FL.shp") DEL
         arcpy.analysis.SpatialJoin(SelectionDelaunayLines, point_input_FL, SelectionDelaunayLinesJoin,
                                    "JOIN_ONE_TO_MANY", "KEEP_ALL", None, "INTERSECT", None, '')
+
+        #arcpy.CopyFeatures_management(SelectionDelaunayLinesJoin, "SelectionDelaunayLinesJoin.shp") DEL
+
         arcpy.management.Sort(SelectionDelaunayLinesJoin, SelectionDelaunayLinesJoinSort, "EDGE ASCENDING", "UR")
 
         EDGE2 = 0
-        with arcpy.da.SearchCursor(SelectionDelaunayLinesJoinSort, ["x1", "y1", "x2", "y2", "EDGE", "InputBdgMBG_Area",
-                                                                    "InputBdgMBG_MBG_Orientation"]) as cursor5:
-            for z in cursor5:
+        with arcpy.da.SearchCursor(SelectionDelaunayLinesJoinSort, ["x1", "y1", "x2", "y2", "EDGE", "Area",
+                                                                    "MBG_Orient"]) as cursor52:
+            for z in cursor52:
                 string1 = str(z[4])
                 string2 = string1.replace("[", "")
                 string = string2.replace("]", "")
@@ -1434,7 +1440,7 @@ class IbTool:
                     G2.add_edge(int(node1), int(node2), weight=areadiff)
                     G3.add_edge(int(node1), int(node2), weight=orintdiff)
                 EDGE2, Area2, MBG_Orient2 = EDGE, Area, MBG_Orient
-        del cursor5
+        del cursor52
 
         mst = nx.minimum_spanning_edges(G, data=True)  # a generator of MST edges
         edgelist = list(mst)  # make a list of the edges
@@ -2495,7 +2501,6 @@ def main():
 
                 MST = IbTools.MST(HU_Filter, SelStrassen, Part_Name)
 
-
                 Cluster_Features = IbTools.MST_Clustering(HU_Filter, MST, MinOverlapMST)
 
                 BigSinglBdg = IbTools.AddSinglBdg(HU_Filter, Cluster_Features)
@@ -2568,12 +2573,13 @@ def main():
 
                 Log("Info", 'COMPLETED SUCCESSFULLY')
 
+                '''
                 del IbTools, Inner_Areas, HU_Filter, SelPart, MST, SelHU, Deli_Areas, \
                     Blocks_red, PatchRemove,  Strassen_FL, SelStrassen,  whereclause, \
                     SelPart_FL, Cluster_Features,  SelStrassen_Diss, Blocks, \
                     Blocks_Veg, Partition_FL, Inner_Areas_Fin, InputHU_FL, Inner_Areas_Dissolve, Feat_Merge, \
                     Sel
-
+                '''
             except arcpy.ExecuteError:
                 # If a ArcGIS tool error occurs, current partition will be calculated again at the end.
 
