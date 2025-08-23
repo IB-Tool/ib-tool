@@ -8,7 +8,7 @@
 # Created:     10.05.2021
 # Cite:        Oliver Harig (2021). Toolset for the delineation of settlements on the basis building footprints, road network and land use data (v1.0) https://doi.org/10.26084/IOERFDZ-SOFT-001    
 # Licence:     MIT License
-               Copyright 2021 Oliver Harig
+#               Copyright 2021 Oliver Harig
 #
 #              Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 #              associated documentation files (the "Software"), to deal in the Software without restriction, including
@@ -38,6 +38,7 @@ import time
 import datetime
 import traceback
 import sys
+import math
 import networkx as nx
 import numpy as np
 import scipy as sp
@@ -191,7 +192,7 @@ def Log(Level='Warning', Text=''):
             pt = (Level + " " + jetztzeit + " - " + printtext)
         logfile.write("\n" + pt)
         logfile.close()
-        print (pt)
+        print(pt)
         return pt
 
     if LogLevel == 'Alert' and (Level == 'Alert' or Level == 'Info'):
@@ -284,7 +285,7 @@ def Starter(valuelist):
            r'          _\///////////__\/////////////________________________\///___________\/////________\/////_____\/////////__' + '\n' + \
            r'          ' + '\n' + \
            r'          Author: Oliver Harig' + '\n' '          Licence: Copyright 2021 Oliver Harig' + '\n\n'
-    print (logo)
+    print(logo)
     time.sleep(1)
 
     if os.path.isfile("A_HU.shp") != True:
@@ -1080,7 +1081,7 @@ class IbTool:
             InputBdg_FL = arcpy.MakeFeatureLayer_management(InputBdg)
             Sel = arcpy.management.SelectLayerByLocation(InputBdg_FL, "INTERSECT", Inner_Blocks_FL)
             arcpy.CopyFeatures_management(Sel, SelBdg)
-            print (CountPrint(SelBdg))
+            print(CountPrint(SelBdg))
             Blocks_red = IbTool.FootprintDensity(self, SelBdg, Inner_Blocks, 0)
             sum = 0
             with arcpy.da.SearchCursor(Blocks_red, ["OVERLAP"]) as cursor22:
@@ -1372,8 +1373,8 @@ class IbTool:
                                                            "NEW_SELECTION", "INVERT")
         arcpy.CopyFeatures_management(Selection, SelectionDelaunayLines)
 
-        with arcpy.da.SearchCursor(SelectionDelaunayLines, ["x1", "y1", "x2", "y2", "EDGE"]) as cursor5:
-            for z in cursor5:
+        with arcpy.da.SearchCursor(SelectionDelaunayLines, ["x1", "y1", "x2", "y2", "EDGE"]) as cursor51:
+            for z in cursor51:
                 string1 = str(z[4])
                 string2 = string1.replace("[", "")
                 string = string2.replace("]", "")
@@ -1386,8 +1387,8 @@ class IbTool:
                 try:
                     XA = DictListOfNodes[int(node1)]
                     XB = DictListOfNodes[int(node2)]
-
-                    y = sp.spatial.distance.cdist(XA, XB, metric='euclidean', p=2, V=None, VI=None, w=None)
+                    
+                    y = sp.spatial.distance.cdist(XA, XB)
                     w = y.min()
                     if w < 1:
                         w = 1
@@ -1397,24 +1398,30 @@ class IbTool:
                         cursor9.insertRow([node1, node2, x1, w])
                     del cursor9
 
+
                 except:
                     if InputBdgJoinPoints is not None and node1 is not None and node2 is not None:
-                        Log('Warning', 'Building skipped while creating the MST. Check input buildings and {} at node {} and node {} for topology error (overlaping polygons).'.format(
+                        Log('Warning', 'Building skipped while creating the MST. Check input buildings and {} at node {} and node {}.'.format(
                             InputBdgJoinPoints, node1, node2))
+        del cursor51
 
         Shp_Area(InputBdg)
         Rename_Field(InputBdg, "Shape_Area", "Area", "DOUBLE")
         arcpy.management.MinimumBoundingGeometry(InputBdg, InputBdgMBG, "RECTANGLE_BY_AREA", "NONE", None, "MBG_FIELDS")
+        #arcpy.CopyFeatures_management(InputBdgMBG, "InputBdgMBG.shp") DEL
         arcpy.management.AddJoin(point_input_FL, "ORIG_FID", InputBdgMBG, "ORIG_FID", "KEEP_ALL")
-
+        #arcpy.CopyFeatures_management(point_input_FL, "point_input_FL.shp") DEL
         arcpy.analysis.SpatialJoin(SelectionDelaunayLines, point_input_FL, SelectionDelaunayLinesJoin,
                                    "JOIN_ONE_TO_MANY", "KEEP_ALL", None, "INTERSECT", None, '')
+
+        #arcpy.CopyFeatures_management(SelectionDelaunayLinesJoin, "SelectionDelaunayLinesJoin.shp") DEL
+
         arcpy.management.Sort(SelectionDelaunayLinesJoin, SelectionDelaunayLinesJoinSort, "EDGE ASCENDING", "UR")
 
         EDGE2 = 0
-        with arcpy.da.SearchCursor(SelectionDelaunayLinesJoinSort, ["x1", "y1", "x2", "y2", "EDGE", "InputBdgMBG_Area",
-                                                                    "InputBdgMBG_MBG_Orientation"]) as cursor5:
-            for z in cursor5:
+        with arcpy.da.SearchCursor(SelectionDelaunayLinesJoinSort, ["x1", "y1", "x2", "y2", "EDGE", "Area",
+                                                                    "MBG_Orient"]) as cursor52:
+            for z in cursor52:
                 string1 = str(z[4])
                 string2 = string1.replace("[", "")
                 string = string2.replace("]", "")
@@ -1433,7 +1440,7 @@ class IbTool:
                     G2.add_edge(int(node1), int(node2), weight=areadiff)
                     G3.add_edge(int(node1), int(node2), weight=orintdiff)
                 EDGE2, Area2, MBG_Orient2 = EDGE, Area, MBG_Orient
-        del cursor5
+        del cursor52
 
         mst = nx.minimum_spanning_edges(G, data=True)  # a generator of MST edges
         edgelist = list(mst)  # make a list of the edges
@@ -2304,8 +2311,8 @@ def main():
         os.chdir(Workspace)
 
         # check python version
-        if sys.version_info[0] > 2:
-            raise Exception(Log('Alert', "Python has to be Python 2"))
+        if sys.version_info[0] != 3:
+            raise Exception(Log('Alert', "Python has to be Python 3"))
 
         # create auxiliary data
         j = 1
@@ -2374,6 +2381,7 @@ def main():
         if globfpdenshresld == 0:
             globfpdenshresld = IbToolsStart.CalcFootprintDensity(InputHU, Strassen, 100, 0, 'global', MinBdgCount,
                                                                  Partition)
+            print("GlobalFootprintDensity = {}".format(globfpdenshresld))
         else:
             pass
 
@@ -2388,11 +2396,11 @@ def main():
             Partlog = open(PartLogPath, 'r+')
             for row in Partlog:
                 part = str(row).replace('\n', '')
-                if part == i:
+                if part == (i.decode('utf-8') if isinstance(i, bytes) else i):
                     isin = True
                 a = a + 1
             if isin is False:
-                Partlog.write("\n" + i)
+                Partlog.write("\n" + i.decode('utf-8') if isinstance(i, bytes) else "\n" + i)
                 Partlog.close()
             if isin is True:
                 Partlog.close()
@@ -2418,7 +2426,7 @@ def main():
                 InputHU_FL = arcpy.MakeFeatureLayer_management(InputHU)
 
                 global Part_Name
-                Part_Name = i
+                Part_Name = i.decode('utf-8') if isinstance(i, bytes) else str(i)
 
                 Log('Info', "#######################################################################################")
                 Log('Info', "PARTITION: " + str(Part_Name) + " - " + str(a) + " of " + str(len(partlist)))
@@ -2492,7 +2500,6 @@ def main():
 
 
                 MST = IbTools.MST(HU_Filter, SelStrassen, Part_Name)
-
 
                 Cluster_Features = IbTools.MST_Clustering(HU_Filter, MST, MinOverlapMST)
 
@@ -2576,9 +2583,9 @@ def main():
                 # If a ArcGIS tool error occurs, current partition will be calculated again at the end.
 
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                print ("ToolError:")
+                print("ToolError:")
                 traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-                print ("ToolError (long)")
+                print("ToolError (long)")
                 traceback.print_exception(exc_type, exc_value, exc_traceback,
                                          limit=2, file=sys.stdout)
 
@@ -2609,7 +2616,7 @@ def main():
 
                     Log("Alert", str(e))
                     exc_type, exc_value, exc_traceback = sys.exc_info()
-                    print ("Error in ToolError exception")
+                    print("Error in ToolError exception")
                     traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
 
@@ -2617,18 +2624,18 @@ def main():
 
                 Log("Alert", str(e))
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                print ("TypeError")
+                print("TypeError")
                 traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-                print ("TypeError (long)")
+                print("TypeError (long)")
                 traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
 
             except Exception as e:
                 Log("Alert", str(e))
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                print ("General python error:")
+                print("General python error:")
                 traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-                print ("General python error (long):")
+                print("General python error (long):")
                 traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
 
@@ -2658,7 +2665,7 @@ def main():
     except Exception as e:
 
         time.sleep(3)
-        raw_input("Press key to exit.")
+        input("Press key to exit.")
         sys.exit(-1)
 
 
