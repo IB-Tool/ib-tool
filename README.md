@@ -16,7 +16,7 @@ Harig, O.; Hecht, R.; Burghardt, D.; Meinel, G. Automatic Delineation of Urban G
 
 In addition, the following Python packages have to be installed:
 
-- Python == 2.7
+- Python == 3.x
 - traceback
 - networkx
 - numpy
