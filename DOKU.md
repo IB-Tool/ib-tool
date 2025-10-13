@@ -13,6 +13,7 @@ Die Methodik beruht auf der Kombination von:
 
 * **Gebäudegrundrissen (HU-DE)** als Indikator realer Bebauung,
 * **topographischen Linien (ATKIS-Straßennetz)** zur Partitionierung der Raumstruktur,
+* **Hilfgesometrien (ATKIS-Wald, -Gewässer, -Moore u. Sumpf)**,
 * **dichtebasierten Clustering-Algorithmen** zur Identifikation bebauter Bereiche,
 * und **graphbasierten Aggregationsverfahren (Minimaler Spannbaum)** zur flächigen Zusammenführung.
 
@@ -47,10 +48,10 @@ Die im Tool konfigurierbaren **Parameter** greifen an verschiedenen Stellen dies
 * **Hintergrund:** Der Parameter operationalisiert den in der Dissertation beschriebenen **Überbauungsgrad (UG)**, der als Verhältnis von Gebäudegrundfläche zur Gesamtblockfläche definiert ist (vgl. Harig 2024, Kap. 4.4.3, S. 29 f.).
 * **Wirkung:**
 
-  * Bei **hohen Werten** (z. B. > 0.25) werden nur kompakte, geschlossene Baublöcke als Siedlung erkannt.
-  * Bei **niedrigen Werten** (z. B. < 0.15) werden auch lockere Bebauungen (z. B. Dorfkerne) erfasst.
-* **Empfohlener Bereich:** 0.18 – 0.22 (vgl. Kap. 4.5.3, empirische Kalibrierung).
-* **Einfluss:** Bestimmt direkt die Mindestdichte für die Aufnahme in den Siedlungszusammenhang und beeinflusst somit die resultierende Fläche der Innenbereiche.
+  * Bei **hohen Werten** (z. B. > 25) werden nur sehr kompakte, geschlossene Baublöcke als Siedlung erkannt (z.B. Stadtzentrum).
+  * Bei **niedrigen Werten** (z. B. < 15) werden auch lockere Bebauungen (z. B. ländliche Bereiche) erfasst.
+* **Empfohlener Bereich:** 18 – 22 (vgl. Kap. 4.5.3, empirische Kalibrierung).
+* **Einfluss:** Dieser Schritt greift der Clusterung und Fangen der erzuegten Geometrien vor. Dadurch wird vorallem Rechenzeit gespart, da Baublöcke, die sicher als Innenbereich angesprochen werden können, in den nachfolgenden Schritten nicht betrachtet werden. Der Standardwert ist mit 18 relativ hoch gewählt, da so die Zahl der falsch-positive erkannten Baublöcke sehr niedrig ist. 
 
 ---
 
@@ -58,14 +59,14 @@ Die im Tool konfigurierbaren **Parameter** greifen an verschiedenen Stellen dies
 
 * **Typ:** Float
 * **Funktion:** Wird als Referenzschwellwert für die Gesamtfläche verwendet, wenn keine lokalen Dichtewerte vorliegen (`calc_footprint_density()`).
-* **Definition:** Mittelwert der Gebäudeflächendichte aller Partitionen eines Untersuchungsgebiets.
+* **Definition:** Mittelwert der Gebäudeflächendichte (Überbauungsgrad) aller Partitionen eines Untersuchungsgebiets.
 * **Hintergrund:** Dient der Robustheit der Analyse in Gebieten mit geringer Bebauungsdichte oder unvollständigen Gebäudedaten (vgl. Harig 2024, Kap. 4.5.3).
-* **Wirkung:**
+* **Wirkung:** 
 
-  * Niedrige Werte (< 0.1) → höhere Sensitivität, Erfassung auch locker bebauter Gebiete.
-  * Hohe Werte (> 0.2) → nur verdichtete Siedlungskerne werden erkannt.
-* **Empfohlene Einstellung:** Automatische Berechnung (0 = auto); manuell nur bei stark heterogenen Untersuchungsgebieten setzen.
-* **Bemerkung:** Wird intern als relativer UG-Schwellwert zur lokalen Dichte normalisiert.
+  * Niedrige Werte (< 10) → auch Gebäude in relativ lockere Bebauung werden aggregiert. 
+  * Hohe Werte (> 20) → nur sehr verdichtete Siedlungskerne werden aggregiert.
+* **Empfohlene Einstellung:** Automatische Berechnung (0 = auto); manuell bei stark heterogenen Untersuchungsgebieten setzen.
+* **Bemerkung:** Der Wert wirkt sich per se nur auf die eher kleinen Siedlungen oder sehr dispersen Siedlungen aus. Er hat dann aber einen sehr großen Einfluss.
 
 ---
 
@@ -73,19 +74,19 @@ Die im Tool konfigurierbaren **Parameter** greifen an verschiedenen Stellen dies
 
 * **Typ:** Float
 * **Funktion:** Filtert in `input_hu_filter()` zu kleine Gebäudeobjekte aus.
-* **Definition:** Gebäude mit einer Grundfläche unterhalb dieses Werts werden bei der Dichteberechnung ignoriert.
-* **Ziel:** Ausschluss nicht siedlungsrelevanter Strukturen (z. B. Gartenhäuser, Carports).
-* **Hintergrund:** In der Dissertation wird dieser Schritt als „semantische Filterung“ bezeichnet (Kap. 4.4.4 und 4.5.2). Grundlage bildet die Unterscheidung nach Gebäudefunktion (Wohn-, Misch-, Gewerbebau etc.).
-* **Empfohlene Werte:** 20 – 30 m², je nach Datenquelle (HU-DE, OSM).
-* **Wirkung:** Verringert Rauschen und erhöht die Aussagekraft der Dichteanalyse.
+* **Definition:** Gebäude mit einer Grundfläche unterhalb dieses Werts werden für alle weiteren Berechnungen aus dem Datensatz gelöscht.
+* **Ziel:** Ausschluss nicht siedlungsrelevanter Strukturen (z. B. Gartenhäuser, Carports, Nebengebäude).
+* **Hintergrund:** Kleine Gebäude und Nebengebäude erfüllen nicht die Vorausetzungen, um einen Bebauungszusammenhang zu erzeugen. Sie werden daher vorab gelöscht.
+* **Empfohlene Werte:** 50-60 m², je nach Örtlichkeit und regionalem Durchschnitt.
+* **Wirkung:** Insbesondere am Siedlungsrand verläuft die Grenze dadurch direkt an den Wohngebäuden. Auf dem Grundstücken rückwärtige Gebäude werden so nicht berücksichtigt.
 
 ---
 
 ### 3.4 **`min_bdg_count` – Minimale Gebäudeanzahl**
 
 * **Typ:** Integer
-* **Funktion:** Definiert die Mindestanzahl von Gebäuden, ab der ein Cluster als gültiger Siedlungsbereich gewertet wird.
-* **Verwendung:** Sowohl bei der Aggregation (Clusterbildung) als auch in der Post-Filterung.
+* **Funktion:** Definiert die Mindestanzahl von Gebäuden, ab der ein Cluster als gültiger Siedlungsbereich/Ortsteil gewertet wird.
+* **Verwendung:** Wirkt sich erst in der Nachberarbeitung aus, indem Schwellwertabhängig Patsches gelöscht werden.
 * **Hintergrund:** Laut empirischer Auswertung (Harig 2024, Kap. 4.5.6) und Expertenbefragung (Anhang A.1.3) gilt ein Ortsteil erst ab etwa **20 Gebäuden oder 1 ha** Fläche als eigenständiger Innenbereich.
 * **Empfohlene Werte:** 15 – 25 Gebäude.
 * **Wirkung:**
@@ -99,26 +100,27 @@ Die im Tool konfigurierbaren **Parameter** greifen an verschiedenen Stellen dies
 
 * **Typ:** Float
 * **Funktion:** Wird in `patch_remove()` zur Entfernung kleiner Siedlungsinseln eingesetzt.
-* **Definition:** Unterhalb dieses Flächenwerts wird eine zusammenhängende Siedlung als Rauschen verworfen.
+* **Definition:** Unterhalb dieses Flächenwerts werden erzeugte Patches asl Siedlungsfläche verworfen.
 * **Hintergrund:** Entspricht den empirisch ermittelten Mindestgrößen eines Ortsteils (Kap. 4.5.6).
-* **Empfohlener Wert:** 10 000 m² (= 1 ha).
+* **Empfohlener Wert:** 10 000 m².
 * **Wirkung:**
 
   * Kleine Fragmente werden entfernt → klarere Innenbereichsgrenzen.
   * Reduziert Übersegmentierung bei dünn besiedelten Regionen.
+  * ABER: Flächenform wird nicht berücksichtigt!
 
 ---
 
 ### 3.6 **`max_hole_size` – Maximale Lochgröße**
 
 * **Typ:** Float
-* **Funktion:** In `gap_close()` zur Füllung unbebauter Innenflächen innerhalb zusammenhängender Siedlungen.
-* **Definition:** Gibt an, bis zu welcher Fläche Freiräume innerhalb eines Siedlungspolygons noch als *Baulücken* gelten und gefüllt werden dürfen.
-* **Hintergrund:** Entspricht planerischen Definitionen des Innenbereichs; Baulücken ≤ 4900 m² (≈ 70 × 70 m) gelten als Bestandteil des Innenbereichs (vgl. Harig 2024, Kap. 4.5.4, S. 41 f.).
-* **Empfohlener Wert:** 5000 m².
+* **Funktion:** In `gap_close()` zur Füllung unbebauter Flächen innerhalb zusammenhängender Siedlungsgeometrien.
+* **Definition:** Gibt an, ab welcher Fläche Freiräume innerhalb eines Siedlungspolygons als *Außenbereich im Innenbereich* gelten bzw. gefüllt werden dürfen.
+* **Hintergrund:** Entspricht planerischen Definitionen des Innenbereichs; 
+* **Empfohlener Wert:** 10 000 m².
 * **Wirkung:**
 
-  * Kleinere Freiflächen (Gärten, Innenhöfe) werden integriert.
+  * Kleinere Freiflächen (Gärten, Innenhöfe, Spielplätze, Wiesen, Parkplätze) werden integriert.
   * Verhindert übermäßige Fragmentierung der Siedlungsflächen.
 
 ---
@@ -126,34 +128,29 @@ Die im Tool konfigurierbaren **Parameter** greifen an verschiedenen Stellen dies
 ### 3.7 **`max_gap_size` – Maximale Lückengröße**
 
 * **Typ:** Float
-* **Funktion:** In `gap_close()` zur Verbindung benachbarter Siedlungscluster.
-* **Definition:** Bestimmt den maximalen Abstand, bis zu dem zwei Siedlungsflächen verbunden werden dürfen.
-* **Hintergrund:** Laut empirischer Erhebung unter Fachplanern liegt die als „Bebauungslücke“ wahrgenommene Grenze bei etwa **70 m** (arithm. Mittel 71,8 m, Anhang A.1.3, Frage 8).
-* **Empfohlener Wert:** 60 – 80 m.
+* **Funktion:** In `gap_close()` schließt Lücken am Siedlungsrand.
+* **Definition:** Gibt den Schwellwert an, bis zu welchem Lücken am Siedlungsrand geschlossen werden.
+* **Hintergrund:** Baulücken zählen zum Innenbereich. Welche unbebaute Fläche noch als Baulücke gelten kann ist hoch umstritten und schwer zu fassen. Insbesondere sind die örtlichen Gegebenheiten bei der Betrachtung einzubeziehen. Allgemien gilt jedoch, ist die Bebauung insgesamt lockerer, kann die Baulücke größer sein als bei typischerweise eher engerer Bebauung.
+* **Empfohlener Wert:** 40 – 100 m.
 * **Wirkung:**
 
-  * Schließt kleinere Abstände zwischen Straßenfronten oder Gebäudereihen.
-  * Fördert zusammenhängende Siedlungsflächen in verdichteten Gebieten.
+Der Algorithmus identifiziert Flächen, die zwischen bestehenden Siedlungs-Clusterflächen liegen und mindestens zu 75 % an diese angrenzen.
+Nur wenn der Anteil der Berührung mit Siedlungsflächen deutlich größer ist als jener zur umgebenden freien Landschaft, wird die Fläche als Baulücke klassifiziert.
+Diese Flächen werden anschließend als integraler Bestandteil des Innenbereichs behandelt und im Polygon zusammengeführt (vgl. Harig 2024, Kap. 4.5.4, Abb. 4.10).
 
 ---
 
 ## 4. Hinweise zur Parametrisierung
 
-| Parameter                  | Empfohlener Startwert | Typischer Einfluss              | Sensitivität |
-| -------------------------- | --------------------: | ------------------------------- | ------------ |
-| `min_overlap_blocks`       |                  0.20 | Dichteempfindlichkeit           | hoch         |
-| `global_footprint_density` |              auto (0) | globale Normierung              | mittel       |
-| `min_area`                 |                 25 m² | Filterwirkung Gebäude           | gering       |
-| `min_bdg_count`            |                    20 | Mindestgröße Cluster            | hoch         |
-| `min_patch_size`           |             10 000 m² | Rauschunterdrückung             | mittel       |
-| `max_hole_size`            |              5 000 m² | Füllung Innenräume              | mittel       |
-| `max_gap_size`             |                  70 m | Verbindung angrenzender Flächen | hoch         |
-
-### Wechselwirkungen
-
-* **`min_overlap_blocks`** und **`global_footprint_density`** bestimmen die Dichteempfindlichkeit – eine Anpassung des einen Parameters erfordert meist eine Gegenkorrektur des anderen.
-* **`max_hole_size`** und **`max_gap_size`** wirken gemeinsam auf die räumliche Kohärenz der Polygone: zu hohe Werte führen zu Überverschmelzung, zu niedrige zu Fragmentierung.
-* **`min_bdg_count`** und **`min_patch_size`** definieren die Mindestgröße von Ortsteilen und sind insbesondere in ländlichen Räumen kritisch für realistische Ergebnisse.
+| Parameter                  | Empfohlener Startwert | Typischer Einfluss                | Sensitivität |
+| -------------------------- | --------------------: | --------------------------------- | ------------ |
+| `min_overlap_blocks`       |                    18 | Bearbeitungszeit reduzieren       | hoch         |
+| `global_footprint_density` |              auto (0) | Abgrenzung kl. Siedlungen         | hoch         |
+| `min_area`                 |               56,8 m² | Keine kl. Gebäude am Siedlungsrand| gering       |
+| `min_bdg_count`            |                    20 | Mindestanzahl Gebäude Ortsteil    | mittel       |
+| `min_patch_size`           |             10 000 m² | Rauschunterdrückung               | mittel       |
+| `max_hole_size`            |             10 000 m² | Füllung Außenber. im Innenber.    | mittel       |
+| `max_gap_size`             |              4 900 m² | Schließen von Baulücken           | hoch         |
 
 ---
 
